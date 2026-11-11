@@ -6,8 +6,8 @@ import { formatCompact, formatMoney, formatMonth, formatShortMonth, toNumber } f
 
 const HEIGHT = 220
 const PAD = { top: 10, right: 4, bottom: 24, left: 56 }
-const INCOME = '#1e7a3f'
-const EXPENSE = '#a8a8a8'
+const INCOME = '#00bc8c'
+const EXPENSE = '#666'
 
 export function MonthlyChart({ data }: { data: MonthlyPoint[] }) {
   const [active, setActive] = useState<number | null>(null)
@@ -35,12 +35,12 @@ export function MonthlyChart({ data }: { data: MonthlyPoint[] }) {
 
   return (
     <div ref={ref}>
-      <div className="small tabular" style={{ minHeight: 20 }}>
+      <div className="small" style={{ minHeight: 20 }}>
         <span className="swatch" style={{ background: INCOME }} />
         доходы{point && <b> {formatMoney(point.income)}</b>}
         <span className="swatch" style={{ background: EXPENSE, marginLeft: 16 }} />
         расходы{point && <b> {formatMoney(point.expense)}</b>}
-        {point && <span className="muted"> · {formatMonth(point.month)}</span>}
+        {point && <span className="text-muted"> · {formatMonth(point.month)}</span>}
       </div>
       <svg
         width={width}
@@ -52,8 +52,8 @@ export function MonthlyChart({ data }: { data: MonthlyPoint[] }) {
       >
         {[0, max / 2, max].map((tick) => (
           <g key={tick}>
-            <line x1={PAD.left} x2={width - PAD.right} y1={y(tick)} y2={y(tick)} stroke="#e6e6e6" />
-            <text x={PAD.left - 6} y={y(tick) + 4} textAnchor="end" fontSize="11" fill="#888">
+            <line x1={PAD.left} x2={width - PAD.right} y1={y(tick)} y2={y(tick)} stroke="#383838" />
+            <text x={PAD.left - 6} y={y(tick) + 4} textAnchor="end" fontSize="11" fill="#999">
               {formatCompact(tick)}
             </text>
           </g>
@@ -64,11 +64,11 @@ export function MonthlyChart({ data }: { data: MonthlyPoint[] }) {
           const expense = toNumber(p.expense)
           return (
             <g key={p.month} onMouseEnter={() => setActive(i)}>
-              <rect x={x - slot / 2} y={PAD.top} width={slot} height={innerHeight} fill={active === i ? '#f4f4f4' : 'transparent'} />
-              <rect x={x - bar} y={y(income)} width={bar} height={y(0) - y(income)} fill={INCOME} />
-              <rect x={x} y={y(expense)} width={bar} height={y(0) - y(expense)} fill={EXPENSE} />
+              <rect x={x - slot / 2} y={PAD.top} width={slot} height={innerHeight} fill={active === i ? '#2c2c2c' : 'transparent'} />
+              <rect x={x - bar - 1} y={y(income)} width={bar} height={y(0) - y(income)} fill={INCOME} />
+              <rect x={x + 1} y={y(expense)} width={bar} height={y(0) - y(expense)} fill={EXPENSE} />
               {(data.length - 1 - i) % labelEvery === 0 && (
-                <text x={x} y={HEIGHT - 6} textAnchor="middle" fontSize="11" fill="#888">
+                <text x={x} y={HEIGHT - 6} textAnchor="middle" fontSize="11" fill="#999">
                   {formatShortMonth(p.month)}
                 </text>
               )}

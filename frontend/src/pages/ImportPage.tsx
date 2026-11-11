@@ -74,14 +74,14 @@ export function ImportPage() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Импорт выписки</h1>
+      <div className="d-flex align-items-center flex-wrap gap-3 mb-4">
+        <h1 className="h3 mb-0">Импорт выписки</h1>
       </div>
 
-      <form className="upload-form" onSubmit={onSubmit}>
-        <label className="field" style={{ maxWidth: 280 }}>
+      <form className="mb-4" style={{ maxWidth: 600 }} onSubmit={onSubmit}>
+        <label className="d-block mb-3" style={{ maxWidth: 300 }}>
           <span>Счёт</span>
-          <select className="select" value={account} onChange={(e) => setAccount(e.target.value)}>
+          <select className="form-select" value={account} onChange={(e) => setAccount(e.target.value)}>
             {accounts.data?.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
@@ -91,7 +91,7 @@ export function ImportPage() {
         </label>
 
         <div
-          className={dragOver ? 'dropzone active' : 'dropzone'}
+          className={dragOver ? 'dropzone rounded mb-3 active' : 'dropzone rounded mb-3'}
           onDragOver={(event) => {
             event.preventDefault()
             setDragOver(true)
@@ -101,15 +101,15 @@ export function ImportPage() {
         >
           {file ? (
             <>
-              <b>{file.name}</b> <span className="muted">{Math.ceil(file.size / 1024)} КБ</span>{' '}
-              <button type="button" className="link-btn" onClick={() => inputRef.current?.click()}>
+              <b>{file.name}</b> <span className="text-muted">{Math.ceil(file.size / 1024)} КБ</span>{' '}
+              <button type="button" className="btn btn-link p-0 align-baseline" onClick={() => inputRef.current?.click()}>
                 другой файл
               </button>
             </>
           ) : (
             <>
               Перетащите CSV сюда или{' '}
-              <button type="button" className="link-btn" onClick={() => inputRef.current?.click()}>
+              <button type="button" className="btn btn-link p-0 align-baseline" onClick={() => inputRef.current?.click()}>
                 выберите файл
               </button>
             </>
@@ -124,16 +124,16 @@ export function ImportPage() {
           />
         </div>
 
-        <details>
+        <details className="mb-3">
           <summary>Формат файла</summary>
-          <p>
+          <p className="text-muted small mt-2">
             Нужны колонки «Дата операции», «Сумма» и «Описание» (или Date, Amount, Description).
             Разделитель «;» или «,», кодировка UTF-8 или Windows-1251. Пример лежит в репозитории:{' '}
             <code>samples/statement_example.csv</code>
           </p>
         </details>
 
-        {error && <div className="error-box">{error}</div>}
+        {error && <div className="alert alert-danger">{error}</div>}
 
         <div>
           <button type="submit" className="btn btn-primary" disabled={!file || !account || upload.isPending}>
@@ -144,40 +144,40 @@ export function ImportPage() {
 
       {result && <ImportResult batch={result} />}
 
-      <div className="section" style={{ marginTop: 32 }}>
-        <h2>Загрузки</h2>
+      <div>
+        <h4>Загрузки</h4>
         {history.isError ? (
           <LoadError error={history.error} onRetry={() => history.refetch()} />
         ) : history.isPending ? (
           <Loading />
         ) : history.data.results.length === 0 ? (
-          <p className="muted">Пока ничего не загружали.</p>
+          <p className="text-muted">Пока ничего не загружали.</p>
         ) : (
-          <div className="table-wrap">
-            <table className="table">
+          <div className="table-responsive">
+            <table className="table table-hover">
               <thead>
                 <tr>
                   <th>Файл</th>
                   <th>Счёт</th>
-                  <th className="num">Новых</th>
-                  <th className="num">Повторов</th>
-                  <th className="num">Ошибок</th>
-                  <th className="shrink">Дата</th>
+                  <th className="text-end text-nowrap">Новых</th>
+                  <th className="text-end text-nowrap">Повторов</th>
+                  <th className="text-end text-nowrap">Ошибок</th>
+                  <th className="text-nowrap">Дата</th>
                 </tr>
               </thead>
               <tbody>
                 {history.data.results.map((batch) => (
                   <tr key={batch.id}>
                     <td>
-                      <Link className="desc" style={{ display: 'block', maxWidth: 280 }} to={`/transactions?import_batch=${batch.id}`} title={batch.filename}>
+                      <Link className="desc d-block" to={`/transactions?import_batch=${batch.id}`} title={batch.filename}>
                         {batch.filename}
                       </Link>
                     </td>
                     <td>{batch.account_name}</td>
-                    <td className="num">{batch.rows_created}</td>
-                    <td className="num">{batch.rows_duplicates}</td>
-                    <td className="num">{batch.errors.length || ''}</td>
-                    <td className="tabular" style={{ whiteSpace: 'nowrap' }}>
+                    <td className="text-end text-nowrap">{batch.rows_created}</td>
+                    <td className="text-end text-nowrap">{batch.rows_duplicates}</td>
+                    <td className="text-end text-nowrap">{batch.errors.length || ''}</td>
+                    <td className="text-nowrap">
                       {formatDate(batch.created_at, true)}
                     </td>
                   </tr>
@@ -194,9 +194,9 @@ export function ImportPage() {
 function ImportResult({ batch }: { batch: ImportBatch }) {
   const uncategorized = batch.rows_created - batch.rows_categorized
   return (
-    <div className="report" aria-live="polite">
+    <div className="alert alert-secondary" style={{ maxWidth: 600 }} aria-live="polite">
       <b>{batch.rows_created > 0 ? `Добавлено операций: ${batch.rows_created}` : 'Новых операций нет'}</b>
-      <ul>
+      <ul className="mb-0 mt-2">
         <li>строк в файле: {batch.rows_total}</li>
         {batch.rows_duplicates > 0 && <li>уже были загружены: {batch.rows_duplicates}</li>}
         {batch.rows_skipped > 0 && <li>пропущено со статусом FAILED: {batch.rows_skipped}</li>}
@@ -215,7 +215,7 @@ function ImportResult({ batch }: { batch: ImportBatch }) {
         )}
       </ul>
       {batch.errors.length > 0 && (
-        <div className="danger-text" style={{ marginTop: 10 }}>
+        <div className="text-danger mt-2">
           Не прочитались строки:
           <ul>
             {batch.errors.slice(0, 10).map((item) => (

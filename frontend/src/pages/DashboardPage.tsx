@@ -34,7 +34,7 @@ export function DashboardPage() {
 
   return (
     <>
-      <div className="page-header">
+      <div className="d-flex align-items-center gap-3 mb-4">
         <h1 className="visually-hidden">Месяц</h1>
         <MonthPicker value={month} onChange={setMonth} />
       </div>
@@ -44,15 +44,16 @@ export function DashboardPage() {
       ) : summary.isPending ? (
         <Loading />
       ) : noData ? (
-        <p>
+        <div className="alert alert-secondary">
           Операций пока нет. <Link to="/import">Загрузить выписку</Link>
-        </p>
+        </div>
       ) : (
         <>
           <Totals summary={summary.data} />
           <CategoriesTable summary={summary.data} month={month} />
-          <div className="section">
-            <h2>За год</h2>
+          <div className="card">
+            <div className="card-header">За год</div>
+            <div className="card-body">
             {monthly.isError ? (
               <LoadError error={monthly.error} onRetry={() => monthly.refetch()} />
             ) : monthly.isPending ? (
@@ -60,6 +61,7 @@ export function DashboardPage() {
             ) : (
               <MonthlyChart data={monthly.data} />
             )}
+            </div>
           </div>
         </>
       )}
@@ -70,18 +72,18 @@ export function DashboardPage() {
 function Totals({ summary }: { summary: MonthSummary }) {
   const net = toNumber(summary.net)
   return (
-    <div className="totals">
-      <div>
-        <span>Доходы</span>
-        <b className="income">{formatMoney(summary.income)}</b>
+    <div className="row mb-4">
+      <div className="col-6 col-md-3 mb-2">
+        <div className="text-muted">Доходы</div>
+        <div className="fs-4 text-success">{formatMoney(summary.income)}</div>
       </div>
-      <div>
-        <span>Расходы</span>
-        <b>{formatMoney(summary.expense)}</b>
+      <div className="col-6 col-md-3 mb-2">
+        <div className="text-muted">Расходы</div>
+        <div className="fs-4">{formatMoney(summary.expense)}</div>
       </div>
-      <div>
-        <span>{net >= 0 ? 'Остаток' : 'Перерасход'}</span>
-        <b className={net >= 0 ? undefined : 'danger-text'}>{formatMoney(Math.abs(net))}</b>
+      <div className="col-6 col-md-3 mb-2">
+        <div className="text-muted">{net >= 0 ? 'Остаток' : 'Перерасход'}</div>
+        <div className={net >= 0 ? 'fs-4' : 'fs-4 text-danger'}>{formatMoney(Math.abs(net))}</div>
       </div>
     </div>
   )
@@ -115,25 +117,25 @@ function CategoriesTable({ summary, month }: { summary: MonthSummary; month: str
   const limitsTotal = summary.budgets.reduce((sum, b) => sum + toNumber(b.limit), 0)
 
   return (
-    <div className="section">
-      <div className="section-head">
-        <h2>Расходы по категориям</h2>
-        <Link to={month === currentMonth() ? '/categories' : `/categories?month=${month}`} className="small">
+    <div className="mb-5">
+      <div className="d-flex align-items-baseline gap-3 mb-2">
+        <h4 className="mb-0">Расходы по категориям</h4>
+        <Link to={month === currentMonth() ? '/categories' : `/categories?month=${month}`}>
           бюджеты
         </Link>
       </div>
       {rows.length === 0 ? (
-        <p className="muted">Расходов в этом месяце нет.</p>
+        <p className="text-muted">Расходов в этом месяце нет.</p>
       ) : (
-        <div className="table-wrap">
-          <table className="table">
+        <div className="table-responsive">
+          <table className="table table-hover">
             <thead>
               <tr>
                 <th>Категория</th>
-                <th className="num">Потрачено</th>
-                <th className="num hide-sm">%</th>
-                <th className="num">Бюджет</th>
-                <th className="num">Осталось</th>
+                <th className="text-end">Потрачено</th>
+                <th className="text-end hide-sm">%</th>
+                <th className="text-end">Бюджет</th>
+                <th className="text-end">Осталось</th>
               </tr>
             </thead>
             <tbody>
@@ -141,22 +143,22 @@ function CategoriesTable({ summary, month }: { summary: MonthSummary; month: str
                 const left = row.limit === null ? null : row.limit - row.spent
                 return (
                   <tr key={row.id ?? 'none'}>
-                    <td className="nowrap">
+                    <td className="text-nowrap">
                       {row.id === null ? (
                         <Link to={transactionsLink(month, { uncategorized: 'true' })}>
                           без категории ({summary.uncategorized_count})
                         </Link>
                       ) : (
-                        <Link to={transactionsLink(month, { category: row.id })} style={{ color: 'inherit' }}>
+                        <Link to={transactionsLink(month, { category: row.id })} className="link-light text-decoration-none">
                           <span className="swatch" style={{ background: row.color }} />
                           {row.name}
                         </Link>
                       )}
                     </td>
-                    <td className="num">{formatMoney(row.spent)}</td>
-                    <td className="num muted hide-sm">{Math.round(row.share * 100)}</td>
-                    <td className="num">{row.limit === null ? '' : formatMoney(row.limit)}</td>
-                    <td className={left !== null && left < 0 ? 'num danger-text' : 'num'}>
+                    <td className="text-end text-nowrap">{formatMoney(row.spent)}</td>
+                    <td className="text-end text-muted hide-sm">{Math.round(row.share * 100)}</td>
+                    <td className="text-end text-nowrap">{row.limit === null ? '' : formatMoney(row.limit)}</td>
+                    <td className={left !== null && left < 0 ? 'text-end text-nowrap text-danger' : 'text-end text-nowrap'}>
                       {left === null ? '' : formatMoney(left)}
                     </td>
                   </tr>
@@ -164,11 +166,11 @@ function CategoriesTable({ summary, month }: { summary: MonthSummary; month: str
               })}
             </tbody>
             <tfoot>
-              <tr>
+              <tr className="fw-bold">
                 <td>Итого</td>
-                <td className="num">{formatMoney(summary.expense)}</td>
+                <td className="text-end text-nowrap">{formatMoney(summary.expense)}</td>
                 <td className="hide-sm" />
-                <td className="num">{limitsTotal ? formatMoney(limitsTotal) : ''}</td>
+                <td className="text-end text-nowrap">{limitsTotal ? formatMoney(limitsTotal) : ''}</td>
                 <td />
               </tr>
             </tfoot>

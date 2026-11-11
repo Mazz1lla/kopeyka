@@ -18,7 +18,8 @@
 
 ## Стек
 
-Django, DRF, PostgreSQL, Redis (кэш отчётов), React, TypeScript, Vite, TanStack Query.
+Django, DRF, PostgreSQL, Redis (кэш отчётов), React, TypeScript, Vite, TanStack Query,
+Bootstrap с темой Darkly из Bootswatch.
 Тесты на pytest и vitest, в GitHub Actions гоняются линтеры и тесты.
 
 ## Запуск

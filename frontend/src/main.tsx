@@ -7,6 +7,7 @@ import { ApiError } from './api/client'
 import { App } from './App'
 import { AuthProvider } from './auth/AuthContext'
 import { ToastProvider } from './components/Toast'
+import 'bootswatch/dist/darkly/bootstrap.min.css'
 import './styles.css'
 
 const queryClient = new QueryClient({

@@ -60,10 +60,10 @@ export function RulesPage() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Правила</h1>
-        <div className="actions">
-          <button type="button" className="btn" onClick={() => setApplying(true)} disabled={!hasActive}>
+      <div className="d-flex align-items-center flex-wrap gap-3 mb-4">
+        <h1 className="h3 mb-0">Правила</h1>
+        <div className="ms-auto d-flex flex-wrap gap-2">
+          <button type="button" className="btn btn-secondary" onClick={() => setApplying(true)} disabled={!hasActive}>
             Применить ко всем операциям
           </button>
           <button type="button" className="btn btn-primary" onClick={() => setEditing('new')}>
@@ -77,50 +77,51 @@ export function RulesPage() {
       ) : rules.isPending ? (
         <Loading />
       ) : rules.data.length === 0 ? (
-        <p className="muted">Правил нет.</p>
+        <p className="text-muted">Правил нет.</p>
       ) : (
         <>
-          <p className="muted small" style={{ marginTop: 0 }}>
+          <p className="text-muted">
             Проверяются по порядку, срабатывает первое подходящее.
           </p>
-          <div className="table-wrap">
-            <table className="table">
+          <div className="table-responsive">
+            <table className="table table-hover align-middle">
               <thead>
                 <tr>
-                  <th className="num shrink">#</th>
+                  <th className="text-end">#</th>
                   <th>Описание</th>
                   <th>Категория</th>
-                  <th className="shrink">Вкл.</th>
-                  <th className="actions" />
+                  <th className="text-nowrap">Вкл.</th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
                 {rules.data.map((rule) => {
                   const amount = describeAmount(rule)
                   return (
-                    <tr key={rule.id} className={rule.is_active ? undefined : 'off'}>
-                      <td className="num">{rule.priority}</td>
+                    <tr key={rule.id} className={rule.is_active ? undefined : 'opacity-50'}>
+                      <td className="text-end text-nowrap">{rule.priority}</td>
                       <td>
                         {MATCH_LABELS[rule.match_type]} <code>{rule.pattern}</code>
-                        {amount && <span className="muted">, сумма {amount}</span>}
+                        {amount && <span className="text-muted">, сумма {amount}</span>}
                       </td>
-                      <td style={{ whiteSpace: 'nowrap' }}>
+                      <td className="text-nowrap">
                         <CategoryName category={categoryById.get(rule.category) ?? null} />
                       </td>
-                      <td style={{ textAlign: 'center' }}>
+                      <td>
                         <input
+                          className="form-check-input"
                           type="checkbox"
                           checked={rule.is_active}
                           onChange={() => toggle.mutate(rule)}
                           aria-label={`Правило «${rule.pattern}» включено`}
                         />
                       </td>
-                      <td className="actions">
-                        <button type="button" className="link-btn" onClick={() => setEditing(rule)}>
-                          изменить
+                      <td className="text-end text-nowrap">
+                        <button type="button" className="btn btn-sm btn-secondary me-2" onClick={() => setEditing(rule)}>
+                          Изменить
                         </button>
-                        <button type="button" className="link-btn danger" onClick={() => setDeleting(rule)}>
-                          удалить
+                        <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => setDeleting(rule)}>
+                          Удалить
                         </button>
                       </td>
                     </tr>
@@ -245,13 +246,13 @@ function RuleDialog(props: {
     >
       <form onSubmit={onSubmit} noValidate>
         {error && !error.field('pattern') && !error.field('amount_max') && (
-          <div className="error-box">{error.message}</div>
+          <div className="alert alert-danger">{error.message}</div>
         )}
-        <div className="form-grid">
-          <label className="field">
-            <span>Описание</span>
+        <div className="row g-3">
+          <label className="col-md-6">
+            <span className="form-label d-block">Описание</span>
             <select
-              className="select"
+              className="form-select"
               value={draft.match_type}
               onChange={(event) => setDraft({ ...draft, match_type: event.target.value as MatchType })}
             >
@@ -262,10 +263,10 @@ function RuleDialog(props: {
               ))}
             </select>
           </label>
-          <label className="field">
-            <span>Текст</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Текст</span>
             <input
-              className="input"
+              className="form-control"
               value={draft.pattern}
               maxLength={200}
               onChange={(event) => setDraft({ ...draft, pattern: event.target.value })}
@@ -273,40 +274,40 @@ function RuleDialog(props: {
               aria-invalid={Boolean(patternError)}
               autoFocus
             />
-            {patternError && <span className="field-error">{patternError}</span>}
+            {patternError && <span className="invalid-feedback d-block">{patternError}</span>}
           </label>
-          <label className="field full">
-            <span>Категория</span>
+          <label className="col-12">
+            <span className="form-label d-block">Категория</span>
             <CategorySelect
               categories={categories.data ?? []}
               value={draft.category || null}
               onChange={(value) => setDraft({ ...draft, category: value ?? 0 })}
             />
           </label>
-          <label className="field">
-            <span>Сумма от</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Сумма от</span>
             <input
-              className="input tabular"
+              className="form-control"
               inputMode="decimal"
               value={draft.amount_min ?? ''}
               onChange={(event) => setDraft({ ...draft, amount_min: event.target.value || null })}
             />
           </label>
-          <label className="field">
-            <span>Сумма до</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Сумма до</span>
             <input
-              className="input tabular"
+              className="form-control"
               inputMode="decimal"
               value={draft.amount_max ?? ''}
               onChange={(event) => setDraft({ ...draft, amount_max: event.target.value || null })}
               aria-invalid={Boolean(error?.field('amount_max'))}
             />
-            {error?.field('amount_max') && <span className="field-error">{error.field('amount_max')}</span>}
+            {error?.field('amount_max') && <span className="invalid-feedback d-block">{error.field('amount_max')}</span>}
           </label>
-          <label className="field">
-            <span>Порядок</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Порядок</span>
             <input
-              className="input tabular"
+              className="form-control"
               type="number"
               min={0}
               value={draft.priority}
@@ -316,27 +317,27 @@ function RuleDialog(props: {
         </div>
 
         {canTest && (
-          <div className="preview" aria-live="polite">
+          <div className="mt-4" aria-live="polite">
             {test.isFetching && !test.data ? (
-              <span className="muted">Поиск…</span>
+              <span className="text-muted">Поиск…</span>
             ) : test.data && !testError ? (
               <>
                 Подходит операций: <b>{test.data.matched}</b>
                 {test.data.already_in_category > 0 && (
-                  <span className="muted"> (уже в этой категории: {test.data.already_in_category})</span>
+                  <span className="text-muted"> (уже в этой категории: {test.data.already_in_category})</span>
                 )}
                 {test.data.sample.length > 0 && (
-                  <table className="table">
+                  <table className="table table-sm mt-2 mb-0">
                     <tbody>
                       {test.data.sample.slice(0, 5).map((item) => (
                         <tr key={item.id}>
-                          <td className="shrink tabular">{formatDate(item.date)}</td>
+                          <td className="text-nowrap">{formatDate(item.date)}</td>
                           <td>
                             <div className="desc" style={{ maxWidth: 330 }}>
                               {item.description}
                             </div>
                           </td>
-                          <td className="num">
+                          <td className="text-end text-nowrap">
                             <Amount value={item.amount} />
                           </td>
                         </tr>
@@ -349,8 +350,8 @@ function RuleDialog(props: {
           </div>
         )}
 
-        <div className="form-actions">
-          <button type="button" className="btn" onClick={props.onClose}>
+        <div className="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" className="btn btn-secondary" onClick={props.onClose}>
             Отмена
           </button>
           <button
@@ -415,28 +416,29 @@ function ApplyDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
         <Loading />
       ) : (
         <>
-          <p style={{ marginTop: 0 }}>
+          <p>
             {data.changed === 0
               ? 'Менять нечего.'
               : `Категория поменяется у ${data.changed} из ${data.checked.toLocaleString('ru-RU')} операций.`}
           </p>
           {data.by_category.length > 0 && (
-            <table className="table">
+            <table className="table table-sm">
               <tbody>
                 {data.by_category.slice(0, 8).map((item) => (
                   <tr key={item.category_id}>
                     <td>
                       <CategoryName category={byId.get(item.category_id) ?? null} />
                     </td>
-                    <td className="num">{item.count}</td>
+                    <td className="text-end text-nowrap">{item.count}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
           {(data.skipped_manual > 0 || overwriteManual) && (
-            <label className="checkbox" style={{ marginTop: 12 }}>
+            <label className="form-check mt-3">
               <input
+                className="form-check-input"
                 type="checkbox"
                 checked={overwriteManual}
                 onChange={(event) => setOverwriteManual(event.target.checked)}
@@ -447,8 +449,8 @@ function ApplyDialog({ open, onClose }: { open: boolean; onClose: () => void }) 
           )}
         </>
       )}
-      <div className="form-actions">
-        <button type="button" className="btn" onClick={onClose}>
+      <div className="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" className="btn btn-secondary" onClick={onClose}>
           {data?.changed === 0 ? 'Закрыть' : 'Отмена'}
         </button>
         {data?.changed !== 0 && (

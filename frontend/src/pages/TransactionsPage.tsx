@@ -132,32 +132,32 @@ export function TransactionsPage() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Операции</h1>
+      <div className="d-flex align-items-center flex-wrap gap-3 mb-4">
+        <h1 className="h3 mb-0">Операции</h1>
         {transactions.data && (
-          <span className="muted tabular">{transactions.data.count.toLocaleString('ru-RU')}</span>
+          <span className="text-muted">{transactions.data.count.toLocaleString('ru-RU')}</span>
         )}
-        <div className="actions">
+        <div className="ms-auto d-flex flex-wrap gap-2">
           <button type="button" className="btn btn-primary" onClick={() => setCreating(true)}>
             Добавить
           </button>
         </div>
       </div>
 
-      <div className="filters">
-        <label className="field search">
-          <span>Поиск</span>
+      <div className="row g-2 align-items-end mb-3">
+        <label className="col-12 col-md-3">
+          <span className="form-label d-block">Поиск</span>
           <input
-            className="input"
+            className="form-control"
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
         </label>
-        <label className="field">
-          <span>Категория</span>
+        <label className="col-6 col-md">
+          <span className="form-label d-block">Категория</span>
           <select
-            className="select"
+            className="form-select"
             value={categoryFilter}
             onChange={(event) => {
               const value = event.target.value
@@ -176,10 +176,10 @@ export function TransactionsPage() {
             ))}
           </select>
         </label>
-        <label className="field">
-          <span>Тип</span>
+        <label className="col-6 col-md">
+          <span className="form-label d-block">Тип</span>
           <select
-            className="select"
+            className="form-select"
             value={filters.kind}
             onChange={(event) => updateParams({ kind: event.target.value })}
           >
@@ -189,10 +189,10 @@ export function TransactionsPage() {
           </select>
         </label>
         {(accounts.data?.length ?? 0) > 1 && (
-          <label className="field">
-            <span>Счёт</span>
+          <label className="col-6 col-md">
+            <span className="form-label d-block">Счёт</span>
             <select
-              className="select"
+              className="form-select"
               value={filters.account}
               onChange={(event) => updateParams({ account: event.target.value })}
             >
@@ -205,28 +205,29 @@ export function TransactionsPage() {
             </select>
           </label>
         )}
-        <label className="field">
-          <span>С</span>
+        <label className="col-6 col-md">
+          <span className="form-label d-block">С</span>
           <input
-            className="input"
+            className="form-control"
             type="date"
             value={filters.date_from}
             onChange={(event) => updateParams({ date_from: event.target.value })}
           />
         </label>
-        <label className="field">
-          <span>По</span>
+        <label className="col-6 col-md">
+          <span className="form-label d-block">По</span>
           <input
-            className="input"
+            className="form-control"
             type="date"
             value={filters.date_to}
             onChange={(event) => updateParams({ date_to: event.target.value })}
           />
         </label>
         {hasFilters && (
+          <div className="col-auto">
           <button
             type="button"
-            className="btn"
+            className="btn btn-secondary"
             onClick={() => {
               setSearch('')
               setParams({}, { replace: true })
@@ -234,6 +235,7 @@ export function TransactionsPage() {
           >
             Сбросить
           </button>
+          </div>
         )}
       </div>
 
@@ -253,22 +255,22 @@ export function TransactionsPage() {
         <Loading />
       ) : rows.length === 0 ? (
         hasFilters ? (
-          <p className="muted">Ничего не найдено.</p>
+          <p className="text-muted">Ничего не найдено.</p>
         ) : (
           <p>
             Операций нет. <Link to="/import">Загрузить выписку</Link> или{' '}
-            <button type="button" className="link-btn" onClick={() => setCreating(true)}>
+            <button type="button" className="btn btn-link p-0 align-baseline" onClick={() => setCreating(true)}>
               добавить вручную
             </button>
           </p>
         )
       ) : (
         <>
-          <div className="table-wrap" style={{ opacity: transactions.isPlaceholderData ? 0.6 : 1 }}>
-            <table className="table">
+          <div className="table-responsive" style={{ opacity: transactions.isPlaceholderData ? 0.6 : 1 }}>
+            <table className="table table-hover table-sm align-middle tx-table">
               <thead>
                 <tr>
-                  <th className="shrink">
+                  <th className="text-nowrap">
                     <input
                       type="checkbox"
                       checked={allSelected}
@@ -276,11 +278,11 @@ export function TransactionsPage() {
                       aria-label="Выбрать все на странице"
                     />
                   </th>
-                  <th className="shrink">Дата</th>
+                  <th className="text-nowrap">Дата</th>
                   <th>Описание</th>
                   <th>Категория</th>
-                  <th className="num">Сумма</th>
-                  <th className="actions" />
+                  <th className="text-end text-nowrap">Сумма</th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -294,7 +296,7 @@ export function TransactionsPage() {
                         aria-label={`Выбрать: ${tx.description}`}
                       />
                     </td>
-                    <td className="tabular" style={{ whiteSpace: 'nowrap' }}>
+                    <td className="text-nowrap">
                       {formatDate(tx.date)}
                     </td>
                     <td>
@@ -302,22 +304,23 @@ export function TransactionsPage() {
                         {tx.description}
                       </div>
                     </td>
-                    <td className="cat">
+                    <td>
                       <CategorySelect
                         categories={categories.data ?? []}
                         value={tx.category}
                         kind={toNumber(tx.amount) > 0 ? 'income' : 'expense'}
+                        className="form-select form-select-sm"
                         onChange={(category) => updateCategory.mutate({ id: tx.id, category })}
                         aria-label={`Категория: ${tx.description}`}
                       />
                     </td>
-                    <td className="num">
+                    <td className="text-end text-nowrap">
                       <Amount value={tx.amount} />
                     </td>
-                    <td className="actions">
+                    <td className="text-end text-nowrap">
                       <button
                         type="button"
-                        className="link-btn danger"
+                        className="btn btn-sm btn-outline-danger"
                         onClick={() => setDeleting(tx)}
                       >
                         удалить
@@ -374,9 +377,10 @@ function BulkBar(props: {
 }) {
   const [category, setCategory] = useState<number | null>(null)
   return (
-    <div className="bulk">
+    <div className="alert alert-info d-flex flex-wrap align-items-center gap-2 py-2">
       <span>Выбрано: {props.count}. Категория:</span>
       <CategorySelect
+        className="form-select form-select-sm w-auto"
         categories={props.categories}
         value={category}
         onChange={setCategory}
@@ -385,13 +389,13 @@ function BulkBar(props: {
       />
       <button
         type="button"
-        className="btn btn-primary"
+        className="btn btn-primary btn-sm"
         disabled={props.pending}
         onClick={() => props.onApply(category)}
       >
         Применить
       </button>
-      <button type="button" className="link-btn" onClick={props.onClear}>
+      <button type="button" className="btn btn-link p-0 align-baseline" onClick={props.onClear}>
         снять выделение
       </button>
     </div>
@@ -455,13 +459,14 @@ function TransactionDialog(props: { open: boolean; onClose: () => void; onCreate
     <Dialog open={props.open} title="Новая операция" onClose={props.onClose}>
       <form onSubmit={onSubmit} noValidate>
         {error && !error.field('amount') && !error.field('description') && (
-          <div className="error-box">{error.message}</div>
+          <div className="alert alert-danger">{error.message}</div>
         )}
-        <div className="form-grid">
-          <div className="field full">
-            <div className="radio-row">
-              <label>
+        <div className="row g-3">
+          <div className="col-12">
+            <div className="d-flex gap-4">
+              <label className="form-check">
                 <input
+                  className="form-check-input"
                   type="radio"
                   checked={kind === 'expense'}
                   onChange={() => {
@@ -471,8 +476,9 @@ function TransactionDialog(props: { open: boolean; onClose: () => void; onCreate
                 />
                 Расход
               </label>
-              <label>
+              <label className="form-check">
                 <input
+                  className="form-check-input"
                   type="radio"
                   checked={kind === 'income'}
                   onChange={() => {
@@ -484,10 +490,10 @@ function TransactionDialog(props: { open: boolean; onClose: () => void; onCreate
               </label>
             </div>
           </div>
-          <label className="field">
-            <span>Сумма</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Сумма</span>
             <input
-              className="input tabular"
+              className="form-control"
               inputMode="decimal"
               value={form.amount}
               onChange={(event) => setForm({ ...form, amount: event.target.value })}
@@ -495,34 +501,34 @@ function TransactionDialog(props: { open: boolean; onClose: () => void; onCreate
               autoFocus
             />
             {(amountInvalid || error?.field('amount')) && (
-              <span className="field-error">{error?.field('amount') ?? 'Нужно число больше нуля'}</span>
+              <span className="invalid-feedback d-block">{error?.field('amount') ?? 'Нужно число больше нуля'}</span>
             )}
           </label>
-          <label className="field">
-            <span>Дата</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Дата</span>
             <input
-              className="input"
+              className="form-control"
               type="date"
               value={form.date}
               max={today()}
               onChange={(event) => setForm({ ...form, date: event.target.value })}
             />
           </label>
-          <label className="field full">
-            <span>Описание</span>
+          <label className="col-12">
+            <span className="form-label d-block">Описание</span>
             <input
-              className="input"
+              className="form-control"
               value={form.description}
               maxLength={255}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
               aria-invalid={Boolean(error?.field('description'))}
             />
             {error?.field('description') && (
-              <span className="field-error">{error.field('description')}</span>
+              <span className="invalid-feedback d-block">{error.field('description')}</span>
             )}
           </label>
-          <label className="field">
-            <span>Категория</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Категория</span>
             <CategorySelect
               categories={categories.data ?? []}
               value={category}
@@ -530,10 +536,10 @@ function TransactionDialog(props: { open: boolean; onClose: () => void; onCreate
               kind={kind}
             />
           </label>
-          <label className="field">
-            <span>Счёт</span>
+          <label className="col-md-6">
+            <span className="form-label d-block">Счёт</span>
             <select
-              className="select"
+              className="form-select"
               value={form.account}
               onChange={(event) => setForm({ ...form, account: event.target.value })}
             >
@@ -545,8 +551,8 @@ function TransactionDialog(props: { open: boolean; onClose: () => void; onCreate
             </select>
           </label>
         </div>
-        <div className="form-actions">
-          <button type="button" className="btn" onClick={props.onClose}>
+        <div className="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" className="btn btn-secondary" onClick={props.onClose}>
             Отмена
           </button>
           <button

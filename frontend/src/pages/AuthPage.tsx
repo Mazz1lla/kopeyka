@@ -36,44 +36,60 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
     error && !error.field('username') && !error.field('password') ? error.message : null
 
   return (
-    <div className="auth">
-      <h1>Копейка</h1>
-      <form onSubmit={onSubmit} noValidate>
-        <h2>{isLogin ? 'Вход' : 'Регистрация'}</h2>
-        {commonError && <div className="error-box" style={{ margin: 0 }}>{commonError}</div>}
-        <label className="field">
-          <span>Логин</span>
-          <input
-            className="input"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            autoComplete="username"
-            autoFocus
-            required
-            aria-invalid={Boolean(error?.field('username'))}
-          />
-          {error?.field('username') && <span className="field-error">{error.field('username')}</span>}
-        </label>
-        <label className="field">
-          <span>Пароль{isLogin ? '' : ' (от 8 символов)'}</span>
-          <input
-            className="input"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete={isLogin ? 'current-password' : 'new-password'}
-            required
-            aria-invalid={Boolean(error?.field('password'))}
-          />
-          {error?.field('password') && <span className="field-error">{error.field('password')}</span>}
-        </label>
-        <button className="btn btn-primary" type="submit" disabled={pending || !username.trim() || !password}>
-          {isLogin ? 'Войти' : 'Зарегистрироваться'}
-        </button>
-        <p className="small" style={{ margin: 0 }}>
-          {isLogin ? <Link to="/register">Регистрация</Link> : <Link to="/login">У меня есть аккаунт</Link>}
-        </p>
-      </form>
+    <div className="container">
+      <div className="row justify-content-center mt-5">
+        <div className="col-sm-8 col-md-5 col-lg-4">
+          <h1 className="h3 text-center mb-4">Копейка</h1>
+          <div className="card">
+            <div className="card-body">
+              <h5 className="card-title mb-3">{isLogin ? 'Вход' : 'Регистрация'}</h5>
+              <form onSubmit={onSubmit} noValidate>
+                {commonError && <div className="alert alert-danger">{commonError}</div>}
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="username">
+                    Логин
+                  </label>
+                  <input
+                    id="username"
+                    className={error?.field('username') ? 'form-control is-invalid' : 'form-control'}
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    autoComplete="username"
+                    autoFocus
+                    required
+                  />
+                  <div className="invalid-feedback">{error?.field('username')}</div>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="password">
+                    Пароль{isLogin ? '' : ' (от 8 символов)'}
+                  </label>
+                  <input
+                    id="password"
+                    className={error?.field('password') ? 'form-control is-invalid' : 'form-control'}
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete={isLogin ? 'current-password' : 'new-password'}
+                    required
+                  />
+                  <div className="invalid-feedback">{error?.field('password')}</div>
+                </div>
+                <button
+                  className="btn btn-primary w-100"
+                  type="submit"
+                  disabled={pending || !username.trim() || !password}
+                >
+                  {isLogin ? 'Войти' : 'Зарегистрироваться'}
+                </button>
+              </form>
+            </div>
+          </div>
+          <p className="text-center mt-3">
+            {isLogin ? <Link to="/register">Регистрация</Link> : <Link to="/login">У меня есть аккаунт</Link>}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

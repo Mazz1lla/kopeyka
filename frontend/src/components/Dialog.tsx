@@ -5,10 +5,12 @@ type DialogProps = {
   title: string
   onClose: () => void
   children: ReactNode
+  footer?: ReactNode
   width?: number
 }
 
-export function Dialog({ open, title, onClose, children, width }: DialogProps) {
+// нативный <dialog>, чтобы не тащить bootstrap.js ради модалок
+export function Dialog({ open, title, onClose, children, footer, width }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -21,7 +23,7 @@ export function Dialog({ open, title, onClose, children, width }: DialogProps) {
   return (
     <dialog
       ref={ref}
-      className="dialog"
+      className="modal-native"
       style={width ? { width: `min(${width}px, calc(100vw - 24px))` } : undefined}
       onClose={onClose}
       onCancel={(event) => {
@@ -29,21 +31,21 @@ export function Dialog({ open, title, onClose, children, width }: DialogProps) {
         onClose()
       }}
       onClick={(event) => {
-        // клик по затемнению вокруг окна
         if (event.target === ref.current) onClose()
       }}
       aria-labelledby="dialog-title"
     >
       {open && (
-        <>
-          <div className="dialog-header">
-            <h2 id="dialog-title">{title}</h2>
-            <button type="button" className="dialog-close" onClick={onClose} aria-label="Закрыть">
-              ×
-            </button>
+        <div className="modal-content">
+          <div className="modal-header">
+            <h5 className="modal-title" id="dialog-title">
+              {title}
+            </h5>
+            <button type="button" className="btn-close" onClick={onClose} aria-label="Закрыть" />
           </div>
-          <div className="dialog-body">{children}</div>
-        </>
+          <div className="modal-body">{children}</div>
+          {footer && <div className="modal-footer">{footer}</div>}
+        </div>
       )}
     </dialog>
   )
@@ -61,21 +63,28 @@ type ConfirmProps = {
 
 export function ConfirmDialog(props: ConfirmProps) {
   return (
-    <Dialog open={props.open} title={props.title} onClose={props.onClose} width={420}>
-      {props.message && <div>{props.message}</div>}
-      <div className="form-actions">
-        <button type="button" className="btn" onClick={props.onClose}>
-          Отмена
-        </button>
-        <button
-          type="button"
-          className="btn btn-danger"
-          onClick={props.onConfirm}
-          disabled={props.pending}
-        >
-          {props.confirmLabel}
-        </button>
-      </div>
+    <Dialog
+      open={props.open}
+      title={props.title}
+      onClose={props.onClose}
+      width={420}
+      footer={
+        <>
+          <button type="button" className="btn btn-secondary" onClick={props.onClose}>
+            Отмена
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={props.onConfirm}
+            disabled={props.pending}
+          >
+            {props.confirmLabel}
+          </button>
+        </>
+      }
+    >
+      {props.message}
     </Dialog>
   )
 }

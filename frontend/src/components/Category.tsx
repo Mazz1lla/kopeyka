@@ -1,7 +1,7 @@
 import type { Category, CategoryKind } from '../api/types'
 
 export function CategoryName({ category }: { category: Pick<Category, 'name' | 'color'> | null }) {
-  if (!category) return <span className="muted">без категории</span>
+  if (!category) return <span className="text-muted">без категории</span>
   return (
     <span>
       <span className="swatch" style={{ background: category.color }} />
@@ -17,6 +17,7 @@ type SelectProps = {
   // показывать только категории с подходящим знаком суммы
   kind?: CategoryKind
   emptyLabel?: string
+  className?: string
   'aria-label'?: string
 }
 
@@ -26,6 +27,7 @@ export function CategorySelect({
   onChange,
   kind,
   emptyLabel = '—',
+  className,
   ...rest
 }: SelectProps) {
   const groups: { kind: CategoryKind; label: string }[] = [
@@ -34,7 +36,7 @@ export function CategorySelect({
   ]
   return (
     <select
-      className="select"
+      className={className ?? 'form-select'}
       value={value ?? ''}
       onChange={(event) => onChange(event.target.value ? Number(event.target.value) : null)}
       {...rest}

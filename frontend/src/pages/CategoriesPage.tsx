@@ -39,40 +39,42 @@ export function CategoriesPage() {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Категории</h1>
+      <div className="d-flex align-items-center flex-wrap gap-3 mb-4">
+        <h1 className="h3 mb-0">Категории</h1>
       </div>
 
-      <div className="cols">
-        <div>
+      <div className="row g-4">
+        <div className="col-lg-6">
           {categories.isError ? (
             <LoadError error={categories.error} onRetry={() => categories.refetch()} />
           ) : categories.isPending ? (
             <Loading />
           ) : (
             (['expense', 'income'] as const).map((kind) => (
-              <div key={kind} className="section">
-                <div className="section-head">
-                  <h2>{kind === 'expense' ? 'Расходы' : 'Доходы'}</h2>
-                  <button type="button" className="link-btn small" onClick={() => setEditing(kind)}>
-                    + добавить
+              <div key={kind} className="mb-4">
+                <div className="d-flex align-items-center mb-2">
+                  <h4 className="mb-0">{kind === 'expense' ? 'Расходы' : 'Доходы'}</h4>
+                  <button type="button" className="btn btn-sm btn-success ms-auto" onClick={() => setEditing(kind)}>
+                    Добавить
                   </button>
                 </div>
-                <ul className="plain-list">
+                <ul className="list-group">
                   {categories.data
                     .filter((category) => category.kind === kind)
                     .map((category) => (
-                      <li key={category.id}>
+                      <li key={category.id} className="list-group-item d-flex align-items-center gap-2">
                         <CategoryName category={category} />
-                        <span className="end small">
-                          <span className="muted tabular" title="Операций">
-                            {category.transactions_count || ''}
+                        {category.transactions_count > 0 && (
+                          <span className="badge bg-secondary rounded-pill" title="Операций">
+                            {category.transactions_count}
                           </span>
-                          <button type="button" className="link-btn" onClick={() => setEditing(category)}>
-                            изменить
+                        )}
+                        <span className="ms-auto text-nowrap">
+                          <button type="button" className="btn btn-sm btn-secondary me-2" onClick={() => setEditing(category)}>
+                            Изменить
                           </button>
-                          <button type="button" className="link-btn danger" onClick={() => setDeleting(category)}>
-                            удалить
+                          <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => setDeleting(category)}>
+                            Удалить
                           </button>
                         </span>
                       </li>
@@ -83,7 +85,9 @@ export function CategoriesPage() {
           )}
         </div>
 
-        <Budgets categories={categories.data ?? []} />
+        <div className="col-lg-6">
+          <Budgets categories={categories.data ?? []} />
+        </div>
       </div>
 
       <CategoryDialog
@@ -163,26 +167,27 @@ function CategoryDialog(props: {
 
   return (
     <Dialog open={props.value !== null} title={isNew ? 'Новая категория' : 'Категория'} onClose={props.onClose} width={400}>
-      <form onSubmit={onSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <label className="field">
-          <span>Название</span>
+      <form onSubmit={onSubmit} noValidate>
+        <label className="d-block mb-3">
+          <span className="form-label d-block">Название</span>
           <input
-            className="input"
+            className="form-control"
             value={name}
             maxLength={60}
             onChange={(event) => setName(event.target.value)}
             aria-invalid={Boolean(error?.field('name'))}
             autoFocus
           />
-          {error && <span className="field-error">{error.field('name') ?? error.message}</span>}
+          {error && <span className="invalid-feedback d-block">{error.field('name') ?? error.message}</span>}
         </label>
-        <div className="field">
-          <span className="label">Цвет</span>
-          <div className="colors">
+        <div>
+          <span className="form-label d-block">Цвет</span>
+          <div className="d-flex flex-wrap gap-2">
             {COLORS.map((value) => (
               <button
                 key={value}
                 type="button"
+                className={value === color ? 'color-btn rounded active' : 'color-btn rounded'}
                 style={{ background: value }}
                 onClick={() => setColor(value)}
                 aria-label={value}
@@ -191,8 +196,8 @@ function CategoryDialog(props: {
             ))}
           </div>
         </div>
-        <div className="form-actions" style={{ marginTop: 6 }}>
-          <button type="button" className="btn" onClick={props.onClose}>
+        <div className="d-flex justify-content-end gap-2 mt-4">
+          <button type="button" className="btn btn-secondary" onClick={props.onClose}>
             Отмена
           </button>
           <button type="submit" className="btn btn-primary" disabled={!name.trim() || save.isPending}>
@@ -264,9 +269,9 @@ function Budgets({ categories }: { categories: Category[] }) {
   const limitValid = Number(newLimit.replace(',', '.')) >= 1
 
   return (
-    <div className="section">
-      <div className="section-head">
-        <h2>Бюджеты</h2>
+    <div>
+      <div className="d-flex align-items-center flex-wrap gap-3 mb-2">
+        <h4 className="mb-0">Бюджеты</h4>
         <MonthPicker
           value={month}
           onChange={(value) => setParams(value === currentMonth() ? {} : { month: value })}
@@ -280,14 +285,14 @@ function Budgets({ categories }: { categories: Category[] }) {
       ) : (
         <>
           {budgets.data.length === 0 ? (
-            <p className="muted">
+            <p className="text-muted">
               На этот месяц бюджетов нет.
               {previous.data && previous.data.length > 0 && (
                 <>
                   {' '}
                   <button
                     type="button"
-                    className="link-btn"
+                    className="btn btn-link p-0 align-baseline"
                     disabled={create.isPending}
                     onClick={() =>
                       create.mutate(
@@ -301,7 +306,7 @@ function Budgets({ categories }: { categories: Category[] }) {
               )}
             </p>
           ) : (
-            <ul className="plain-list">
+            <ul className="list-group">
               {budgets.data.map((budget) => (
                 <BudgetRow
                   key={budget.id}
@@ -316,8 +321,7 @@ function Budgets({ categories }: { categories: Category[] }) {
 
           {available.length > 0 && (
             <form
-              className="row"
-              style={{ marginTop: 14 }}
+              className="d-flex flex-wrap gap-2 mt-3"
               onSubmit={(event) => {
                 event.preventDefault()
                 if (newCategory && limitValid)
@@ -325,6 +329,7 @@ function Budgets({ categories }: { categories: Category[] }) {
               }}
             >
               <CategorySelect
+                className="form-select w-auto"
                 categories={available}
                 value={newCategory}
                 onChange={setNewCategory}
@@ -333,7 +338,8 @@ function Budgets({ categories }: { categories: Category[] }) {
                 aria-label="Категория"
               />
               <input
-                className="input tabular budget-limit"
+                className="form-control"
+                style={{ width: 130 }}
                 inputMode="decimal"
                 value={newLimit}
                 onChange={(event) => setNewLimit(event.target.value)}
@@ -342,7 +348,7 @@ function Budgets({ categories }: { categories: Category[] }) {
               />
               <button
                 type="submit"
-                className="btn"
+                className="btn btn-secondary"
                 disabled={!newCategory || !limitValid || create.isPending}
               >
                 Добавить
@@ -367,29 +373,30 @@ function BudgetRow(props: {
   const valid = Number(value.replace(',', '.')) >= 1
 
   return (
-    <li>
+    <li className="list-group-item d-flex align-items-center gap-2">
       <CategoryName category={props.category ?? null} />
       <form
-        className="end small"
+        className="ms-auto d-flex align-items-center gap-2"
         onSubmit={(event) => {
           event.preventDefault()
           if (changed && valid) props.onSave(value.replace(',', '.'))
         }}
       >
         {changed && (
-          <button type="submit" className="link-btn" disabled={!valid}>
-            сохранить
+          <button type="submit" className="btn btn-sm btn-primary" disabled={!valid}>
+            Сохранить
           </button>
         )}
         <input
-          className="input tabular budget-limit"
+          className="form-control form-control-sm text-end"
+          style={{ width: 110 }}
           inputMode="decimal"
           value={value}
           onChange={(event) => setValue(event.target.value)}
           aria-label={`Лимит: ${props.category?.name ?? ''}`}
         />
-        <button type="button" className="link-btn danger" onClick={props.onDelete}>
-          удалить
+        <button type="button" className="btn btn-sm btn-outline-danger" onClick={props.onDelete}>
+          Удалить
         </button>
       </form>
     </li>
