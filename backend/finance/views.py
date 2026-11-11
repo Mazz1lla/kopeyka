@@ -83,7 +83,9 @@ class AccountViewSet(OwnedViewSetMixin, viewsets.ModelViewSet):
 
 
 class CategoryViewSet(OwnedViewSetMixin, viewsets.ModelViewSet):
-    queryset = Category.objects.annotate(transactions_count=Count("transactions"))
+    queryset = Category.objects.annotate(transactions_count=Count("transactions")).order_by(
+        "kind", "name"
+    )
     serializer_class = CategorySerializer
     pagination_class = None
     filterset_fields = ["kind"]
